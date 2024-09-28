@@ -1,4 +1,4 @@
-const connect = require("./connection");
+const connect = require("../connection");
 
 const getAll = async () => {
   try {
@@ -28,10 +28,35 @@ const createUser = async (user) => {
   }
 };
 
-const getUserByEmail = async (email) => {
+const getByEmail = async (email) => {
   const conn = await connect();
   const query = await conn.query("SELECT * FROM users WHERE email = ?", [email]);
-  return query[0][0];
+  const [user] = query[0];
+  return user;
 };
 
-module.exports = { getAll, createUser, getUserByEmail };
+
+
+const getById = async (id) => {
+  const conn = await connect();
+  const query = await conn.query("SELECT * FROM users WHERE id = ?", [id]);
+  return query[0][0]; // Retorna um único usuário
+};
+
+
+const updateUser = async (id, user) => {
+  const conn = await connect();
+  const { name, email, phoneNumber, password } = user;
+  const query = await conn.query(
+    "UPDATE users SET name = ?, email = ?, phoneNumber = ?, password = ? WHERE id = ?",
+    [name, email, phoneNumber, password, id]
+  );
+  return { id, ...user };
+};
+
+const deleteUser = async (id) => {
+  const conn = await connect();
+  await conn.query("DELETE FROM users WHERE id = ?", [id]);
+};
+
+module.exports = { getAll, getById, getByEmail, createUser, updateUser, deleteUser };
